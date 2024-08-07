@@ -1,0 +1,103 @@
+spring:
+  application:
+    name: interview-test
+  zipkin:
+    enabled: false
+  cloud:
+    kubernetes:
+      ribbon:
+        enabled: false
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false
+    default-property-inclusion: NON_NULL
+#  cache:
+#    type: redis
+#  redis:
+#    host: localhost
+#    port: 6379
+#    database: 10
+#    ttl: 1d  # TTL in Days
+#    cacheDocumentNumber: interview-test-documentNumber
+
+rdt-mob-bik:
+  ribbon:
+    ConnectTimeout: 1500
+    ReadTimeout: 99000
+    MaxAutoRetries: 3
+    MaxAutoRetriesNextServer: 0
+    OkToRetryOnAllOperations: true
+    listOfServers: http://localhost:5000
+    ServerListRefreshInterval: 10000
+
+feign:
+  hystrix:
+    enabled: true
+
+hystrix:
+  shareSecurityContext: true
+  command:
+    ScoringModelClient#getScore(List):
+      execution.isolation.thread.timeoutInMilliseconds: 6600
+      circuitBreaker:
+        requestVolumeThreshold: 40
+        sleepWindowInMilliseconds: 60000
+      metrics.rollingStats.timeInMilliseconds: 180000
+    AuditDataClient#auditAcceptedDeniedRequest(AcceptedDeniedRequest):
+      execution.isolation.thread.timeoutInMilliseconds: 6600
+      circuitBreaker:
+        requestVolumeThreshold: 40
+        sleepWindowInMilliseconds: 60000
+      metrics.rollingStats.timeInMilliseconds: 180000
+
+  threadpool:
+    rdt-mob-bik:
+      coreSize: 50
+      maxQueueSize: 400
+      metrics.rollingStats.timeInMilliseconds: 180000
+
+mx:
+  hocelot:
+    api:
+      validations:
+        cma1: true
+        cma2: true
+        cma3: true
+        cma5: true
+        cma6: true
+        cma7: true
+        cma8: true
+        cma9: true
+        cma10: true
+        maxDocumentNumber: 3
+        vehicleValueMin: 18995
+        vehicleValueMax: 67493.75
+        validation5: 3
+        validation7a: 0.9
+        validation7b: 1.1
+        validation10: 57500
+        curp-pattern: "^([A-Za-z][AEIOUXaeioux][A-Za-z]{2}\\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01])[HhMm](?:[Aa][Ss]|[B|b][CScs]|[Cc][CLMSHclmsh]|[Dd][FGfg]|[Gg][TRtr]|[Hh][Gg]|[Jj][Cc]|[Mm][CNScns]|[Nn][ETLetl]|[Oo][Cc]|[Pp][Ll]|[Qq][TRtr]|[Ss][PLRplr]|[Tt][CSLcsl]|[Vv][Zz]|[Yy][Nn]|[Zz][Ss])[B-DF-HJ-NP-TV-Zb-df-hj-np-tv-z]{3}[A-Za-z\\d])(\\d)$"
+        rfc-pattern: "^([A-Za-z][AEIOUXaeioux][A-Za-z]{2}\\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01])([A-Z\\d]{3}))$"
+      score:
+        enrichment:
+          tokenEndpoint: https://test-endpoint.com
+          base64Credentials: credentialsTokens
+          enrichmentEndpoint: https://test-endpoint.com/mx/calculate?vertexes=${mx.hocelot.api.score.enrichment.vertex}
+          vertex: moreAttr
+        audit-data:
+          name: xxx-yyy
+          endpoint-request-response: /audit/request
+          find-request: /audit/findRequest
+          enrichment: /audit/enrichment
+        model:
+          name: rdt-mob-bik
+          endpoint: /scoring_service
+          score: 0.125001216718
+
+logging:
+  level:
+    org: INFO
+    com: DEBUG
+
+server:
+  port: 10101

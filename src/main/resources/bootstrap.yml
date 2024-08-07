@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: interview-test
+  cloud:
+    config:
+      name: ${spring.application.name}
+      uri: ${SPRING_CONFIG_URI:http://localhost:8888}
+
+logging:
+  level:
+    org:
+      springframework: DEBUG
